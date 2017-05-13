@@ -774,8 +774,10 @@ Option<Error> validateAllocatedToSingleRole(const Resources& resources)
 
 Option<Error> validate(const RepeatedPtrField<Resource>& resources)
 {
+  LOG(INFO) << "second validate function with resources "<< resources;
   Option<Error> error = Resources::validate(resources);
   if (error.isSome()) {
+    LOG(INFO) << "some invalid issues lel";
     return Error("Invalid resources: " + error.get().message);
   }
 
@@ -1148,9 +1150,10 @@ Option<Error> validateTaskAndExecutorResources(const TaskInfo& task)
   if (task.has_executor()) {
     total += task.executor().resources();
   }
-
+  LOG(INFO) << "got resources " << total;
   Option<Error> error = resource::validate(total);
   if (error.isSome()) {
+    LOG(INFO) << "invalid resources ";
     return Error(
         "Task and its executor use invalid resources: " + error->message);
   }
@@ -1209,8 +1212,10 @@ Option<Error> validateTask(
   };
 
   foreach (const lambda::function<Option<Error>()>& validator, validators) {
+    LOG(INFO) << "validating good stuff";
     Option<Error> error = validator();
     if (error.isSome()) {
+      LOG(INFO) << "problem in validate task ";
       return error;
     }
   }
@@ -1317,11 +1322,11 @@ Option<Error> validateExecutor(
     return error;
   }
 
-  if (!offered.contains(total)) {
+  /*if (!offered.contains(total)) {
     return Error(
         "Total resources " + stringify(total) + " required by task and its"
         " executor is more than available " + stringify(offered));
-  }
+  }*/
 
   return None();
 }
@@ -1338,7 +1343,7 @@ Option<Error> validate(
 {
   CHECK_NOTNULL(framework);
   CHECK_NOTNULL(slave);
-
+  LOG(INFO) << " finally the right validate ";
   vector<lambda::function<Option<Error>()>> validators = {
     lambda::bind(internal::validateTask, task, framework, slave),
     lambda::bind(internal::validateExecutor, task, framework, slave, offered)
@@ -1427,11 +1432,10 @@ Option<Error> validateExecutor(
 {
   CHECK_NOTNULL(framework);
   CHECK_NOTNULL(slave);
-
   // Do the general validation first.
   Option<Error> error =
     executor::internal::validate(executor, framework, slave);
-
+  LOG(INFO) << "general validation complete";
   if (error.isSome()) {
     return error;
   }
@@ -1489,12 +1493,14 @@ Option<Error> validateExecutor(
       "Executor '" + stringify(executor.executor_id()) + "' uses no disk");
   }
 
+  LOG(INFO) << "validation combo ";
   // Validate combined resources of task group and executor.
 
   // NOTE: This is refactored into a separate function so that it can
   // be easily unit tested.
   error = internal::validateTaskGroupAndExecutorResources(taskGroup, executor);
   if (error.isSome()) {
+    LOG(INFO) << "validation of taskgroup failed";
     return error;
   }
 
@@ -1506,12 +1512,13 @@ Option<Error> validateExecutor(
   if (!slave->hasExecutor(framework->id(), executor.executor_id())) {
     total += executorResources;
   }
+  LOG(INFO) << "total resources is " << total;
 
-  if (!offered.contains(total)) {
+/*  if (!offered.contains(total)) {
     return Error(
         "Total resources " + stringify(total) + " required by task group and"
         " its executor are more than available " + stringify(offered));
-  }
+  }*/
 
   if (executor.has_command()) {
     Option<Error> error =
@@ -1522,7 +1529,7 @@ Option<Error> validateExecutor(
           "contains an invalid command: " + error->message);
     }
   }
-
+  LOG(INFO) << "no error yay";
   return None();
 }
 

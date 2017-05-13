@@ -305,7 +305,9 @@ struct DRFSorter::Node
     void subtract(const SlaveID& slaveId, const Resources& toRemove)
     {
       CHECK(resources.contains(slaveId));
-      CHECK(resources.at(slaveId).contains(toRemove));
+      CHECK(resources.at(slaveId).contains(toRemove)) << resources.at(slaveID)
+          << " does not contain "
+          << toRemove;
 
       resources[slaveId] -= toRemove;
 

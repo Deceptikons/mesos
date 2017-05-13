@@ -517,6 +517,8 @@ Try<Docker::RunOptions> Docker::RunOptions::create(
   options.privileged = dockerInfo.privileged();
 
   if (resources.isSome()) {
+    // Experimental code
+    LOG(INFO) << "HELLO THERE " << resources.get();
     // TODO(yifan): Support other resources (e.g. disk).
     Option<double> cpus = resources.get().cpus();
     if (cpus.isSome()) {
