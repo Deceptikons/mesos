@@ -518,7 +518,7 @@ Try<Docker::RunOptions> Docker::RunOptions::create(
 
   if (resources.isSome()) {
     // Experimental code
-    LOG(INFO) << "HELLO THERE " << resources.get();
+    LOG(INFO) << "HELLO THERE " << resources.get("cpuset");
     // TODO(yifan): Support other resources (e.g. disk).
     Option<double> cpus = resources.get().cpus();
     if (cpus.isSome()) {
@@ -909,6 +909,7 @@ Future<Option<int>> Docker::run(
   string cmd = strings::join(" ", argv);
 
   VLOG(1) << "Running " << cmd;
+  LOG(INFO) << "Running " << cmd;
 
   Try<Subprocess> s = subprocess(
       path,

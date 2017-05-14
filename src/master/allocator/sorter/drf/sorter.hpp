@@ -304,8 +304,14 @@ struct DRFSorter::Node
 
     void subtract(const SlaveID& slaveId, const Resources& toRemove)
     {
+      // we iterate through the hashmap
+      for (hashmap<SlaveID, Resources>::iterator it = resources.begin();
+            it != resources.end(); ++it)
+        LOG(INFO) << "SlaveID: " << it->first << "=> " << it->second;
+      LOG(INFO) << "resources are " << resources.at(slaveId)
+                << "and slaveid is " << slaveId;
       CHECK(resources.contains(slaveId));
-      CHECK(resources.at(slaveId).contains(toRemove)) << resources.at(slaveID)
+      CHECK(resources.at(slaveId).contains(toRemove)) << resources.at(slaveId)
           << " does not contain "
           << toRemove;
 

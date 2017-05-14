@@ -33,3 +33,7 @@ missing
 .deps/
 .libs/
 *-stamp
+
+#temp files by vim
+*.swp
+*.swo

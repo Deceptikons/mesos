@@ -82,7 +82,7 @@ Try<Resources> Containerizer::resources(const Flags& flags)
   // is valid.
   vector<Resource> resourceList = Resources::fromString(
       flags.resources.getOrElse(""), flags.default_role).get();
-
+  LOG(INFO) << " resource list is " << resourceList;
   bool hasCpus = false;
   bool hasMem = false;
   bool hasDisk = false;
@@ -115,6 +115,15 @@ Try<Resources> Containerizer::resources(const Flags& flags)
     resources += Resources::parse(
         "cpus",
         stringify(cpus),
+        flags.default_role).get();
+
+    LOG(INFO) << "resources after adding cpu is - " << resources;
+    vector<long> cpuset;
+    for (int ii = 0; ii < cpus; ++ii)
+      cpuset.emplace_back(ii);
+    resources += Resources::parse(
+        "cpuset",
+        stringify(cpuset),
         flags.default_role).get();
   }
 
