@@ -177,6 +177,9 @@ public:
     // "--memory" option.
     Option<Bytes> memory;
 
+    // "--cpuset" option
+    std::string cpuset;
+
     // Environment variable overrides. These overrides will be passed
     // to docker container through "--env-file" option.
     std::map<std::string, std::string> env;

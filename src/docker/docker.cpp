@@ -518,7 +518,7 @@ Try<Docker::RunOptions> Docker::RunOptions::create(
 
   if (resources.isSome()) {
     // Experimental code
-    LOG(INFO) << "HELLO THERE " << resources.get("cpuset");
+    LOG(INFO) << "HELLO THERE " << resources.get().get("cpuset");
     // TODO(yifan): Support other resources (e.g. disk).
     Option<double> cpus = resources.get().cpus();
     if (cpus.isSome()) {
@@ -532,7 +532,13 @@ Try<Docker::RunOptions> Docker::RunOptions::create(
         options.cpuQuota = quota.us();
       }
     }
-
+    // Set cpuset resources if it exists
+    Option<Value::Ranges> cpuset = resources.get().get<Value::Ranges>("cpuset");
+    if (cpuset.isSome()) {
+      string cpuset_string = stringify(cpuset.get());
+      LOG(INFO) << "going to set cpuset with " << cpuset.get();
+      options.cpuset = cpuset_string.substr(1, cpuset_string.size() - 2);
+    }
     Option<Bytes> mem = resources.get().mem();
     if (mem.isSome()) {
       options.memory = std::max(mem.get(), MIN_MEMORY);
@@ -795,6 +801,11 @@ Future<Option<int>> Docker::run(
   if (options.cpuShares.isSome()) {
     argv.push_back("--cpu-shares");
     argv.push_back(stringify(options.cpuShares.get()));
+  }
+
+  if (options.cpuset.size() != 0) {
+    argv.push_back("--cpuset-cpus");
+    argv.push_back(stringify(options.cpuset));
   }
 
   if (options.cpuQuota.isSome()) {
